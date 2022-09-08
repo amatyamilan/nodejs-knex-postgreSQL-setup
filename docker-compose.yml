@@ -1,0 +1,36 @@
+version: '3.3'
+services:
+  db:
+    image: postgres:14.1-alpine
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - '5432:5432'
+    volumes: 
+      - db:/var/lib/postgresql/data
+
+  app:
+    depends_on:
+      - db
+    links:
+      - db
+    image: ali-express:latest
+    build: .
+    container_name: app
+    restart: always
+    ports:
+     - "4000:4000"
+    command: npm run serve
+    volumes:
+      # mount current dir into docker container
+      - .:/opt/express-mvc/
+      # ignore local node_modules, use container
+      # - /opt/express-mvc/node_modules
+    env_file:
+      - .env
+volumes:
+  db:
+    driver: local
+
